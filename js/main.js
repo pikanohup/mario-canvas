@@ -75,6 +75,7 @@ var GameController = Base.extend({
 		this._super(0, 0);
 
 		this.figures = [];
+		this.obstacles = [];
 		this.coinGauge = new Gauge(15, 20, 32, 32, 0, 0, 10, 4, true);
 		this.liveGauge = new Gauge(550, 20, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
@@ -86,18 +87,41 @@ var GameController = Base.extend({
 		this._super(img, 0, 0);
 	},
 	
-	load: function(level) {
+	load: function(level) {	
+		if(this.animationID){
+			this.pause(animationID);
+		}
+		this.reset();
 		this.setSize(can.width, can.height);
-		this.setImage(1);
+		this.setImage(level.id);
 		this.raw = level;
-		var test = new Mario(400, 300, this);
+		
+		for(let i = 0; i < level.width; i++) {
+			var t = [];
+			
+			for(let j = 0; j < level.height; j++) {
+				t.push('');
+			}
+			
+			this.obstacles.push(t);
+		}
+		
+		for(let i = 0; i < level.data.length; i++) {
+			let col = level.data[i];
+			
+			for(let j = 0; j < col.length; j++) {
+				if(reflection[col[j]])
+					new (reflection[col[j]])(i * 32, (col.length - j - 1) * 32, this);
+			}
+		}
+
 	},
 	start: function() {
 		this.loop();
 	},
 	loop: function() {
 		var that = this;
-		window.requestAnimationFrame(function() {that.loop.apply(that);});	
+		this.animationID = window.requestAnimationFrame(function() {that.loop.apply(that);});	
 		var now = Date.now();
 		delta = now - then;
 		if(delta > constants.interval)
@@ -114,6 +138,13 @@ var GameController = Base.extend({
 			
 			this.coinGauge.playFrame();
 			this.liveGauge.playFrame();
+	},
+	pause: function() {
+		window.cancelAnimationFrame(this.animationID);
+	},
+	reset: function() {
+		this.figures = [];
+		this.obstacles = [];
 	},
 	getGridWidth: function() {
 		return this.raw.width;
@@ -363,7 +394,7 @@ var Mario = Figure.extend({
 	playFrame: function() {		
 		this._super();
 	},
-});
+}, 'mario');
 
 
 
