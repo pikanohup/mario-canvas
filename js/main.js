@@ -109,12 +109,12 @@ var GameController = Base.extend({
 			this.pause(animationID);
 		}
 		this.reset();
-		this.setSize(8000, level.height * 32);
+		this.setSize(255 * 32, level.height * 32);
 		this.setImage(level.id);
-		this.raw = level;
+		this.raw = level;		
 		
 		for(let i = 0; i < level.width; i++) {
-			var t = [];
+			let t = [];
 			
 			for(let j = 0; j < level.height; j++) {
 				t.push('');
@@ -128,7 +128,7 @@ var GameController = Base.extend({
 			
 			for(let j = 0; j < col.length; j++) {
 				if(reflection[col[j]])
-					new (reflection[col[j]])((i-1) * 32, (j-1)* 32, this);
+					new (reflection[col[j]])(i * 32, (j - 1) * 32, this);
 			}
 		}
 
@@ -147,12 +147,16 @@ var GameController = Base.extend({
 			ctx1.clearRect(0, 0, can1.width, can1.height);
 			
 			//draw	
-			for(let i = this.figures.length; i--; ) {
+			for(let i = 0; i < this.figures.length;i++ ) {
 				if(!this.figures[i].dead) {
 					this.figures[i].move();
 					this.figures[i].playFrame();
 				}
 			}
+			for(let i = 0; i < this.obstacles.length;i++ )
+				for(let j = 0; j < this.obstacles[i].length; j++)
+					if(this.obstacles[i][j])
+						this.obstacles[i][j].playFrame();
 			
 			this.coinGauge.playFrame();
 			this.liveGauge.playFrame();
@@ -240,7 +244,7 @@ var Figure = Base.extend({
 			// }
 		// }
 		
-		if(je === 4)
+		if(je === 5)
 			return true;
 		return false;
 	},
@@ -447,8 +451,32 @@ var Mario = Figure.extend({
 
 
 
+var Matter = Base.extend({
+	init: function(x, y, blocking, level) {
+		this.blocking = blocking;
+		this.level = level;
+		this._super(x, y);
+		this.setSize(32, 32);
+		this.addToGrid(level);
+	},
+	addToGrid: function(level) {
+		level.obstacles[this.x / 32][level.getGridHeight() - 1 - this.y / 32] = this;
+	},
+});
 
+var Ground = Matter.extend({
+	init: function(x, y, blocking, level) {
+		this._super(x, y, blocking, level);
+	},
+});
 
+var TopGrass = Ground.extend({
+	init: function(x, y, level) {
+		var blocking = ground_blocking.top;
+		this._super(x, y, blocking, level);
+		this.setImage(images.objects, 888, 404);
+	},
+}, 'grass_top');
 
 
 $(document).ready(function() {
