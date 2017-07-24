@@ -39,7 +39,7 @@ var images = {
 	peach   : BASEPATH + 'mario-peach.png',
 };
 var constants = {
-	interval        : 200,
+	interval        : 40,
 	bounce          : 15,
 	cooldown        : 20,
 	gravity         : 2,
@@ -71,4 +71,17 @@ var mushroom_mode = {
 };
 var c2u = function(s) {
 	return 'url(' + s + ')';
+};
+Math.sign = function(x) {
+	if(x > 0)
+		return 1;
+	else if(x < 0)
+		return -1;
+		
+	return 0;
+};
+
+var levelMap = {
+	width: 252,
+	height: 15,
 };
