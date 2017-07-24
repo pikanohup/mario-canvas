@@ -219,9 +219,37 @@ var Figure = Base.extend({
 	getVelocity: function() {
 		return { vx : this.vx, vy : this.vy };
 	},
+	collides: function(is, ie, js, je, blocking) {		
+		// if(is < 0 || ie >= this.level.obstacles.length)
+			// return true;
+			
+		// if(js < 0 || je >= this.level.getGridHeight())
+			// return false;
+			
+		// for(let i = is; i <= ie; i++) {
+			// for(let j = je; j >= js; j--) {
+				// let obj = this.level.obstacles[i][j];
+				
+				// if(obj) {
+					// if(obj instanceof Item && this instanceof Mario && (blocking === ground_blocking.bottom || obj.blocking === ground_blocking.none))
+						// obj.activate(this);
+					
+					// if((obj.blocking & blocking) === blocking)
+						// return true;
+				// }
+			// }
+		// }
+		
+		if(je === 4)
+			return true;
+		return false;
+	},
+	
+	
+	
 	move: function() {
 		var vx = this.vx;
-		var vy = this.vy;
+		var vy = this.vy - constants.gravity;
 		
 		var s = this.state;
 		
@@ -278,22 +306,22 @@ var Figure = Base.extend({
 		} else
 			d = 0;
 		
-		y += vy;
+		y -= vy;
 		
-		// for(var i = 0; i < d; i++) {
-			// if(this.collides(is, ie, t - dy, t - dy, b)) {
-				// onground = dy < 0;
-				// vy = 0;
-				// y = this.level.height - (t + 1) * 32 - (dy > 0 ? (s - 1) * 32 : 0);
-				// break;
-			// }
+		for(var i = 0; i < d; i++) {
+			if(this.collides(is, ie, t - dy, t - dy, b)) {
+				onground = dy < 0;
+				vy = 0;
+				y = this.level.height - (t + 1) * 32 - (dy > 0 ? (s - 1) * 32 : 0);
+				break;
+			}
 			
-			// t -= dy;
-		// }
+			t -= dy;
+		}
 		
 
 		
-		this.onground = true; //todo
+		this.onground = onground;
 		this.setVelocity(vx, vy);
 		this.setPosition(x, y);
 	},
