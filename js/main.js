@@ -111,7 +111,7 @@ var GameController = Base.extend({
 			
 			for(let j = 0; j < col.length; j++) {
 				if(reflection[col[j]])
-					new (reflection[col[j]])(i * 32, (col.length - j - 1) * 32, this);
+					new (reflection[col[j]])((i-1) * 32, (j-1)* 32, this);
 			}
 		}
 
