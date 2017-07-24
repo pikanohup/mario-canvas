@@ -1,3 +1,5 @@
+var can1 = document.getElementById('infoBar');
+var ctx1 = can1.getContext('2d');
 var can = document.getElementById('gameScreen');
 var ctx = can.getContext('2d');
 var delta = 0;
@@ -67,6 +69,21 @@ var Gauge = Base.extend({
 		this.setImage(images.objects, startImgX, startImgY);
 		this.setupFrames(fps, frames, rewind);
 	},
+	playFrame: function() {		
+		if(this.frameTick) {
+			this.frameTimer += delta;
+			if(this.frameTimer > this.frameTick){
+				this.currentFrame++;
+				if(this.currentFrame >= this.frames)
+					this.currentFrame = 0;
+				this.frameTimer %= this.frameTick;
+			}
+				ctx1.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, this.y, this.width, this.height);
+
+		}
+		else
+			ctx1.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, this.y, this.width, this.height);
+	},
 });
 
 
@@ -76,7 +93,7 @@ var GameController = Base.extend({
 
 		this.figures = [];
 		this.obstacles = [];
-		this.coinGauge = new Gauge(15, 20, 32, 32, 0, 0, 10, 4, true);
+		this.coinGauge = new Gauge(15, 20, 32, 32, 0, 0, 5, 4, true);
 		this.liveGauge = new Gauge(550, 20, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
 	},
@@ -92,7 +109,7 @@ var GameController = Base.extend({
 			this.pause(animationID);
 		}
 		this.reset();
-		this.setSize(can.width, can.height);
+		this.setSize(8000, level.height * 32);
 		this.setImage(level.id);
 		this.raw = level;
 		
@@ -126,7 +143,8 @@ var GameController = Base.extend({
 		delta = now - then;
 		if(delta > constants.interval)
 			delta = constants.interval;
-			ctx.clearRect(0, 0, 2 * can.width, can.height);
+			ctx.clearRect(0, 0, this.width, this.height);
+			ctx1.clearRect(0, 0, can1.width, can1.height);
 			
 			//draw	
 			for(let i = this.figures.length; i--; ) {
@@ -154,6 +172,7 @@ var GameController = Base.extend({
 	},
 	setParallax: function(x) {
 		this.setPosition(x, this.y);
+		can.style.backgroundPosition = '-' + x + 'px -380px';		
 	},
 });
 
@@ -318,11 +337,12 @@ var Mario = Figure.extend({
 	setPosition: function(x, y) {
 		this._super(x, y);
 		var r = this.level.width - 640;
-		var w = (this.x <= 210) ? 0 : ((this.x >= this.level.width - 230) ? r : r / (this.level.width - 440) * (this.x - 210));		
+		var w = (this.x <= 210) ? 0 : ((this.x >= this.level.width - 230) ? r : (this.x - 210));		
 		this.level.setParallax(w);
-
-		if(this.onground && this.x >= this.level.width - 128)
-			this.victory();
+		if(w)
+			ctx.translate(-this.vx, 0);
+		// if(this.onground && this.x >= this.level.width - 128)
+			// this.victory();
 	},
 	input: function(keys) {
 		this.fast = keys.accelerate;
