@@ -1,6 +1,8 @@
-var can1 = document.getElementById('infoBar');
+var can2 = document.getElementById('info');
+var ctx2 = can2.getContext('2d');
+var can1 = document.getElementById('figure');
 var ctx1 = can1.getContext('2d');
-var can = document.getElementById('gameScreen');
+var can = document.getElementById('scene');
 var ctx = can.getContext('2d');
 var delta = 0;
 var then = Date.now();
@@ -54,11 +56,11 @@ var Base = Class.extend({
 					this.currentFrame = 0;
 				this.frameTimer %= this.frameTick;
 			}
-				ctx.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, this.y, this.width, this.height);
+				ctx.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
 
 		}
 		else
-			ctx.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, this.y, this.width, this.height);
+			ctx.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
 	},
 });
 
@@ -78,11 +80,11 @@ var Gauge = Base.extend({
 					this.currentFrame = 0;
 				this.frameTimer %= this.frameTick;
 			}
-				ctx1.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, this.y, this.width, this.height);
+				ctx2.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, can.height-this.y, this.width, this.height);
 
 		}
 		else
-			ctx1.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, this.y, this.width, this.height);
+			ctx2.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, can.height-this.y, this.width, this.height);
 	},
 });
 
@@ -93,12 +95,12 @@ var GameController = Base.extend({
 
 		this.figures = [];
 		this.obstacles = [];
-		this.coinGauge = new Gauge(15, 20, 32, 32, 0, 0, 5, 4, true);
-		this.liveGauge = new Gauge(550, 20, 40, 40, 0, 430, 3, 6, true);
+		this.coinGauge = new Gauge(20, 450, 32, 32, 0, 0, 5, 4, true);
+		this.liveGauge = new Gauge(550, 450, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
 	},
 	setImage: function(index) {
-		var img = BASEPATH + 'backgrounds/' + ((index < 6 ? '0' : '') + index) + '.png';
+		var img = BASEPATH + 'backgrounds/0' + index + '.png';
 		can.style.background = c2u(img);
 		can.style.backgroundPosition = '0 -380px';
 		this._super(img, 0, 0);
@@ -109,7 +111,7 @@ var GameController = Base.extend({
 			this.pause(animationID);
 		}
 		this.reset();
-		this.setSize(255 * 32, level.height * 32);
+		this.setSize(level.width * 32, level.height * 32);
 		this.setImage(level.id);
 		this.raw = level;		
 		
@@ -128,7 +130,7 @@ var GameController = Base.extend({
 			
 			for(let j = 0; j < col.length; j++) {
 				if(reflection[col[j]])
-					new (reflection[col[j]])(i * 32, (j - 1) * 32, this);
+					new (reflection[col[j]])(i * 32, (col.length - j - 1) * 32, this);
 			}
 		}
 
@@ -144,7 +146,8 @@ var GameController = Base.extend({
 		if(delta > constants.interval)
 			delta = constants.interval;
 			ctx.clearRect(0, 0, this.width, this.height);
-			ctx1.clearRect(0, 0, can1.width, can1.height);
+			ctx1.clearRect(0, 0, this.width, this.height);
+			ctx2.clearRect(0, 0, can2.width, this.height);
 			
 			//draw	
 			for(let i = 0; i < this.figures.length;i++ ) {
@@ -176,308 +179,9 @@ var GameController = Base.extend({
 	},
 	setParallax: function(x) {
 		this.setPosition(x, this.y);
-		can.style.backgroundPosition = '-' + x + 'px -380px';		
+		can.style.backgroundPosition = '-' + Math.floor(x / 3) + 'px -380px';		
 	},
 });
-
-
-
-// figure
-var Figure = Base.extend({
-	init: function(x, y, level) {
-		this.dead = false;
-		this.onground = true;
-		this.setState(size_states.small);
-		this.setVelocity(0, 0);
-		this.direction = directions.none;
-		this.level = level;
-		this._super(x, y);
-		level.figures.push(this);
-	},
-	setState: function(state) {
-		this.state = state;
-	},
-	setPosition: function(x, y) {
-		this._super(x, y);
-		this.setGridPosition(x, y);
-	},
-	setGridPosition: function(x, y) {
-		this.i = Math.floor((x + 16) / 32);
-		this.j = Math.ceil(this.level.getGridHeight() - 1 - y / 32);
-		
-		if(this.j > this.level.getGridHeight())
-			this.die();
-	},
-	getGridPosition: function(x, y) {
-		return { i : this.i, j : this.j };
-	},
-	setVelocity: function(vx, vy) {
-		this.vx = vx;
-		this.vy = vy;
-		
-		if(vx > 0)
-			this.direction = directions.right;
-		else if(vx < 0)
-			this.direction = directions.left;
-	},
-	getVelocity: function() {
-		return { vx : this.vx, vy : this.vy };
-	},
-	collides: function(is, ie, js, je, blocking) {		
-		// if(is < 0 || ie >= this.level.obstacles.length)
-			// return true;
-			
-		// if(js < 0 || je >= this.level.getGridHeight())
-			// return false;
-			
-		// for(let i = is; i <= ie; i++) {
-			// for(let j = je; j >= js; j--) {
-				// let obj = this.level.obstacles[i][j];
-				
-				// if(obj) {
-					// if(obj instanceof Item && this instanceof Mario && (blocking === ground_blocking.bottom || obj.blocking === ground_blocking.none))
-						// obj.activate(this);
-					
-					// if((obj.blocking & blocking) === blocking)
-						// return true;
-				// }
-			// }
-		// }
-		
-		if(je === 5)
-			return true;
-		return false;
-	},
-	
-	
-	
-	move: function() {
-		var vx = this.vx;
-		var vy = this.vy - constants.gravity;
-		
-		var s = this.state;
-		
-		var x = this.x;
-		var y = this.y;
-		
-		var dx = Math.sign(vx);
-		var dy = Math.sign(vy);
-		
-		var is = this.i;
-		var ie = is;
-		
-		var js = Math.ceil(this.level.getGridHeight() - s - (y + 31) / 32);
-		var je = this.j;
-		
-		var d = 0, b = ground_blocking.none;
-		var onground = false;
-		var t = Math.floor((x + 16 + vx) / 32);
-		
-		if(dx > 0) {
-			d = t - ie;
-			t = ie;
-			b = ground_blocking.left;
-		} else if(dx < 0) {
-			d = is - t;
-			t = is;
-			b = ground_blocking.right;
-		}
-		
-		x += vx;
-		
-		// for(var i = 0; i < d; i++) {
-			// if(this.collides(t + dx, t + dx, js, je, b)) {
-				// vx = 0;
-				// x = t * 32 + 15 * dx;
-				// break;
-			// }
-			
-			// t += dx;
-			// is += dx;
-			// ie += dx;
-		// }
-		
-		if(dy > 0) {
-			t = Math.ceil(this.level.getGridHeight() - s - (y + 31 + vy) / 32);
-			d = js - t;
-			t = js;
-			b = ground_blocking.bottom;
-		} else if(dy < 0) {
-			t = Math.ceil(this.level.getGridHeight() - 1 - (y + vy) / 32);
-			d = t - je;
-			t = je;
-			b = ground_blocking.top;
-		} else
-			d = 0;
-		
-		y -= vy;
-		
-		for(var i = 0; i < d; i++) {
-			if(this.collides(is, ie, t - dy, t - dy, b)) {
-				onground = dy < 0;
-				vy = 0;
-				y = this.level.height - (t + 1) * 32 - (dy > 0 ? (s - 1) * 32 : 0);
-				break;
-			}
-			
-			t -= dy;
-		}
-		
-
-		
-		this.onground = onground;
-		this.setVelocity(vx, vy);
-		this.setPosition(x, y);
-	},
-	death: function() {
-		return false;
-	},
-	die: function() {
-		this.dead = true;
-	},
-});
-
-
-// mario
-var Mario = Figure.extend({
-	init: function(x, y, level) {
-		this.standSprites = [
-			[[{ x : 0, y : 81},{ x: 481, y : 83}],[{ x : 81, y : 0},{ x: 561, y : 83}]],
-			[[{ x : 0, y : 162},{ x: 481, y : 247}],[{ x : 81, y : 243},{ x: 561, y : 247}]]
-		];
-		this.crouchSprites = [
-			[{ x : 241, y : 0},{ x: 161, y : 0}],
-			[{ x : 241, y : 162},{ x: 241, y : 243}]
-		];
-		this._super(x, y, level);
-		this.setSize(80, 80);
-		this.setMarioState(mario_states.normal);
-		this.direction = directions.right;
-		this.setImage(images.sprites, 81, 0);
-		this.crouching = false;
-		this.fast = false;
-	},
-	setMarioState: function(state) {
-		this.marioState = state;
-	},
-	setState: function(state) {
-		if(state !== this.state) {
-			this.setMarioState(mario_states.normal);
-			this._super(state);
-		}
-	},
-	setPosition: function(x, y) {
-		this._super(x, y);
-		var r = this.level.width - 640;
-		var w = (this.x <= 210) ? 0 : ((this.x >= this.level.width - 230) ? r : (this.x - 210));		
-		this.level.setParallax(w);
-		if(w)
-			ctx.translate(-this.vx, 0);
-		// if(this.onground && this.x >= this.level.width - 128)
-			// this.victory();
-	},
-	input: function(keys) {
-		this.fast = keys.accelerate;
-		this.crouching = keys.down;
-		
-		if(!this.crouching) {
-			if(this.onground && keys.up)
-				this.jump();
-			
-			if(keys.right || keys.left)
-				this.walk(keys.left, keys.accelerate);
-			else
-				this.vx = 0;
-		}
-	},
-	setVelocity: function(vx, vy) {
-		if(this.crouching) {
-			vx = 0;
-			this.crouch();
-		} else {
-			if(this.onground && vx > 0)
-				this.walkRight();
-			else if(this.onground && vx < 0)
-				this.walkLeft();
-			else
-				this.stand();
-		}
-	
-		this._super(vx, vy);
-	},
-	walk: function(reverse, fast) {
-		this.vx = constants.walking_v * (fast ? 2 : 1) * (reverse ? - 1 : 1);
-	},
-	walkRight: function() {
-		if(this.state === size_states.small) {
-			if(!this.setupFrames(4, 2, true))
-				this.setImage(images.sprites, 0, 0);
-		} else {
-			if(!this.setupFrames(5, 2, true))
-				this.setImage(images.sprites, 0, 243);
-		}
-	},
-	walkLeft: function() {
-		if(this.state === size_states.small) {
-			if(!this.setupFrames(4, 2, true))
-				this.setImage(images.sprites, 0, 81);
-		} else {
-			if(!this.setupFrames(5, 2, true))
-				this.setImage(images.sprites, 81, 162);
-		}
-	},
-	stand: function() {
-		var coords = this.standSprites[this.state - 1][this.direction === directions.left ? 0 : 1][this.onground ? 0 : 1];
-		this.setImage(images.sprites, coords.x, coords.y);
-		this.clearFrames();
-	},
-	crouch: function() {
-		var coords = this.crouchSprites[this.state - 1][this.direction === directions.left ? 0 : 1];
-		this.setImage(images.sprites, coords.x, coords.y);
-		this.clearFrames();
-	},
-	jump: function() {
-		this.vy = constants.jumping_v;
-	},
-	move: function() {
-		this.input(keys);
-		this._super();
-	},
-	playFrame: function() {		
-		this._super();
-	},
-}, 'mario');
-
-
-
-
-var Matter = Base.extend({
-	init: function(x, y, blocking, level) {
-		this.blocking = blocking;
-		this.level = level;
-		this._super(x, y);
-		this.setSize(32, 32);
-		this.addToGrid(level);
-	},
-	addToGrid: function(level) {
-		level.obstacles[this.x / 32][level.getGridHeight() - 1 - this.y / 32] = this;
-	},
-});
-
-var Ground = Matter.extend({
-	init: function(x, y, blocking, level) {
-		this._super(x, y, blocking, level);
-	},
-});
-
-var TopGrass = Ground.extend({
-	init: function(x, y, level) {
-		var blocking = ground_blocking.top;
-		this._super(x, y, blocking, level);
-		this.setImage(images.objects, 888, 404);
-	},
-}, 'grass_top');
-
 
 $(document).ready(function() {
 	var gameController = new GameController;

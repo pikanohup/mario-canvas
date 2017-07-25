@@ -4,13 +4,16 @@
 	height: 480px; width: 640px; position: absolute; left: 50%; top: 50%;
 	margin-left: -321px; margin-top: -241px; border: 1px solid #ccc; overflow: hidden;
 }
-#gameScreen, #infoBar { 
+#scene, #info, #figure { 
 	margin: 0; padding: 0; height: 100%; width: 100%; position: absolute;
 	bottom: 0; left: 0;
 }
-#gameScreen { 
+#scene { 
 	z-index:0;
 }
-#infoBar {
+#figure { 
 	z-index:1;
+}
+#info {
+	z-index:2;
 }
