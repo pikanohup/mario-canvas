@@ -53,8 +53,8 @@ var Figure = Base.extend({
 				var obj = this.level.obstacles[i][j];
 				
 				if(obj) {
-					// if(obj instanceof Item && this instanceof Mario && (blocking === ground_blocking.bottom || obj.blocking === ground_blocking.none))
-						// obj.activate(this);
+					if(obj instanceof Item && this instanceof Mario && (blocking === ground_blocking.bottom || obj.blocking === ground_blocking.none))
+						obj.activate(this);
 					
 					if((obj.blocking & blocking) === blocking)
 						return true;

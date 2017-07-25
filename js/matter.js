@@ -116,14 +116,11 @@ var LeftPipe = Ground.extend({
 var Decoration = Matter.extend({
 	init: function(x, y, level) {
 		this._super(x, y, ground_blocking.none, level);
-		level.decorations.push(this);
 	},
-	setImage: function(img, x, y) {
-		
+	setImage: function(img, x, y) {		
 		this._super(img, x, y);
 	},
-	setPosition: function(x, y) {
-		
+	setPosition: function(x, y) {		
 		this._super(x, y);
 	},
 });
@@ -263,10 +260,6 @@ var Item = Matter.extend({
 		this.isBlocking = isBlocking;
 		this._super(x, y, isBlocking ? ground_blocking.all : ground_blocking.none, level);
 		this.activated = false;
-		this.addToLevel(level);
-	},
-	addToLevel: function(level) {
-		level.items.push(this);
 	},
 	activate: function(from) {
 		this.activated = true;
@@ -320,7 +313,9 @@ var Coin = Item.extend({
 		this._super(from);
 	},
 	remove: function() {
-		//this.view.remove();
-		removeByValue(this.level.items, this);
+		for(let i = 0; i < this.level.obstacles.length; i++)
+				for(let j = 0; j < this.level.obstacles[i].length; j++)
+					if(this.level.obstacles[i][j] == this)
+						this.level.obstacles[i][j] = '';
 	},
 }, 'coin');
