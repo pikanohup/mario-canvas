@@ -92,6 +92,7 @@ var Gauge = Base.extend({
 var GameController = Base.extend({
 	init: function() {
 		this._super(0, 0);
+		this.levelID = 1;
 		this.coins = 0;
 		this.lifes = 0;
 		this.looping = false;
@@ -114,6 +115,7 @@ var GameController = Base.extend({
 		this.reset();
 		this.setSize(level.width * 32, level.height * 32);
 		this.setImage(level.background);
+		this.levelID = level.id + 1;
 		this.raw = level;
 		
 		for(let i = 0; i < level.width; i++) {
@@ -192,7 +194,7 @@ var GameController = Base.extend({
 		}
 		
 		this.reset();
-		this.load(definedLevels[this.raw.background]);
+		this.load(definedLevels[this.levelID]);
 		
 		for(let i = this.figures.length; i--; ) {
 			if(this.figures[i] instanceof Mario) {
