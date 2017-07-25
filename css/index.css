@@ -1,4 +1,9 @@
-@font-face { font-family: SuperMario256; src: url('../fonts/Super Mario Bros.ttf'); } 
+@font-face {
+   font-family: 'SMB';
+   src: local('Super Mario Bros.'),
+        url('../fonts/Super Mario Bros.ttf') format('truetype');
+   font-style: normal;
+}
 
 #game {
 	height: 480px; width: 640px; position: absolute; left: 50%; top: 50%;

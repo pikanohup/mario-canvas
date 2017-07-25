@@ -55,8 +55,8 @@ var constants = {
 	big_turtle_v    : 2,
 	shell_v         : 10,
 	shell_wait      : 25,
-	star_vx         : 4,
-	star_vy         : 16,
+	star_vx         : 2,
+	star_vy         : 8,
 	bullet_v        : 12,
 	max_coins       : 100,
 	pipeplant_count : 150,
@@ -71,6 +71,18 @@ var mushroom_mode = {
 };
 var c2u = function(s) {
 	return 'url(' + s + ')';
+};
+var q2q = function(figure, opponent) {
+	if(figure.x > opponent.x + 16)
+		return false;		
+	else if(figure.x + 16 < opponent.x)
+		return false;		
+	else if(figure.y + figure.state * 32 - 4 < opponent.y)
+		return false;		
+	else if(figure.y + 4 > opponent.y + opponent.state * 32)
+		return false;
+		
+	return true;
 };
 Math.sign = function(x) {
 	if(x > 0)
@@ -87,13 +99,13 @@ var levelMap = {
 	height: 15,
 	data:[
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'coin' , 'grass_top' , 'soil'],
-	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
+	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'coin' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'pipe_top_left' , 'pipe_left' , 'pipe_left_grass' , 'pipe_left_soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'pipe_top_right' , 'pipe_right' , 'pipe_right_grass' , 'pipe_right_soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'mario' , '' , 'grass_top' , 'soil'],
-	['' , '' , '' , '' , '' , '' , '' , '' , '' , 'multiple_coinbox' , '' , '' , '' , 'grass_top' , 'soil'],
-	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'planted_soil_left'],
+	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
+	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'multiple_coinbox' , '' , '' , 'grass_top' , 'planted_soil_left'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'planted_soil_middle'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'planted_soil_right'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
@@ -103,11 +115,11 @@ var levelMap = {
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'bush_left' , 'grass_top' , 'soil'],
-	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'bush_middle' , 'grass_top' , 'soil'],
+	['' , '' , '' , '' , '' , '' , '' , '' , 'starbox' , '' , '' , '' , 'bush_middle' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'bush_middle_right' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'bush_right' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
-	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
+	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'mushroombox' , '' , '' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , 'mushroombox' , '' , '' , '' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],
 	['' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , '' , 'grass_top' , 'soil'],

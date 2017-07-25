@@ -11,6 +11,7 @@ var Matter = Base.extend({
 		level.obstacles[this.x / 32][this.level.getGridHeight() - 1 - this.y / 32] = this;
 	},
 });
+
 // ground class
 var Ground = Matter.extend({
 	init: function(x, y, blocking, level) {
@@ -83,6 +84,7 @@ var BrownBlock = Ground.extend({
 		this.setImage(images.objects, 514, 194);
 	},
 }, 'brown_block');
+
 // pipe
 var RightTopPipe = Ground.extend({
 	init: function(x, y, level) {
@@ -124,7 +126,8 @@ var Decoration = Matter.extend({
 		this._super(x, y);
 	},
 });
-// soil Classes
+
+// soil
 var TopRightCornerGrass = Decoration.extend({
 	init: function(x, y, level) {
 		this._super(x, y, level);
@@ -280,7 +283,6 @@ var Item = Matter.extend({
 	},
 	playFrame: function() {
 		if(this.isBouncing) {
-			//this.view.css({ 'bottom' : (this.bounceDir > 0 ? '+' : '-') + '=' + this.bounceStep + 'px' });
 			if(this.bounceDir > 0)
 				this.y += this.bounceStep;
 			else
@@ -307,7 +309,7 @@ var Coin = Item.extend({
 	},
 	activate: function(from) {
 		if(!this.activated) {
-			//from.addCoin(); TODO
+			from.addCoin();
 			this.remove();
 		}
 		this._super(from);
@@ -315,7 +317,81 @@ var Coin = Item.extend({
 	remove: function() {
 		for(let i = 0; i < this.level.obstacles.length; i++)
 				for(let j = 0; j < this.level.obstacles[i].length; j++)
-					if(this.level.obstacles[i][j] == this)
+					if(this.level.obstacles[i][j] === this)
 						this.level.obstacles[i][j] = '';
 	},
 }, 'coin');
+
+var CoinBox = Item.extend({
+	init: function(x, y, level, amount) {
+		this._super(x, y, true, level);
+		this.setImage(images.objects, 346, 328);
+		this.setAmount(amount || 1);
+	},
+	setAmount: function(amount) {
+		this.amount = amount;
+	},
+	activate: function(from) {		
+		if(this.amount) {
+			from.addCoin();
+			this.bounce();
+			this.amount--;
+			if(this.amount === 0)
+				this.setImage(images.objects, 514, 194);
+		}		
+		this._super(from);
+	},
+	playFrame: function() {
+		
+		this._super();
+	},
+}, 'coinbox');
+
+var MultipleCoinBox = CoinBox.extend({
+	init: function(x, y, level) {
+		this._super(x, y, level, 3);
+	},
+}, 'multiple_coinbox');
+
+var MushroomBox = Item.extend({
+	init: function(x, y, level) {
+		this._super(x, y, true, level);
+		this.setImage(images.objects, 96, 33);
+		this.max_mode = mushroom_mode.plant;
+		this.mushroom = new Mushroom(x, y, level);
+		this.setupFrames(4, 4, false);
+	},
+	activate: function(from) {
+		if(!this.activated) {
+			if(from.state === size_states.small || this.max_mode === mushroom_mode.mushroom)
+				this.mushroom.release(mushroom_mode.mushroom);
+			else
+				this.mushroom.release(mushroom_mode.plant);
+			
+			this.clearFrames();
+			this.bounce();
+			this.setImage(images.objects, 514, 194);
+		}
+			
+		this._super(from);
+	},
+}, 'mushroombox');
+
+var StarBox = Item.extend({
+	init: function(x, y, level) {
+		this._super(x, y, true, level);
+		this.setImage(images.objects, 96, 33);
+		this.star = new Star(x, y, level);
+		this.setupFrames(4, 4, false);
+	},
+	activate: function(from) {
+		if(!this.activated) {
+			this.star.release();
+			this.clearFrames();
+			this.bounce();
+			this.setImage(images.objects, 514, 194);
+		}
+		
+		this._super(from);
+	},
+}, 'starbox');

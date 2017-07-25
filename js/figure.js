@@ -1,6 +1,4 @@
-
-
-// figure
+// figure class
 var Figure = Base.extend({
 	init: function(x, y, level) {
 		this.dead = false;
@@ -64,7 +62,9 @@ var Figure = Base.extend({
 		
 		return false;
 	},
+	hit: function() {
 		
+	},
 	move: function() {
 		var vx = this.vx;
 		var vy = this.vy - constants.gravity;
@@ -147,8 +147,110 @@ var Figure = Base.extend({
 	die: function() {
 		this.dead = true;
 	},
+	playFrame: function() {		
+		if(this.frameTick) {
+			this.frameTimer += delta;
+			if(this.frameTimer > this.frameTick){
+				this.currentFrame++;
+				if(this.currentFrame >= this.frames)
+					this.currentFrame = 0;
+				this.frameTimer %= this.frameTick;
+			}
+				ctx1.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
+
+		}
+		else
+			ctx1.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
+	},
 });
 
+
+var ItemFigure = Figure.extend({
+	init: function(x, y, level) {
+		this._super(x, y, level);
+	},
+});
+
+var Mushroom = ItemFigure.extend({
+	init: function(x, y, level) {
+		this._super(x, y, level);
+		this.active = false;
+		this.setSize(32, 32);
+		this.setImage(images.objects, 582, 60);
+		this.released = 0;
+		this.dead = true;
+	},
+	release: function(mode) {
+		this.released = 4;
+		if(mode === mushroom_mode.plant)
+			this.setImage(images.objects, 548, 60);			
+		this.mode = mode;
+		this.dead = false;
+	},
+	move: function() {
+		if(this.active) {
+			this._super();
+		
+			if(this.mode === mushroom_mode.mushroom && this.vx === 0)
+				this.setVelocity(this.direction === directions.right ? -constants.mushroom_v : constants.mushroom_v, this.vy);
+		} else if(this.released) {
+			this.released--;
+			this.setPosition(this.x, this.y + 8);
+			
+			if(!this.released) {
+				this.active = true;
+				
+				if(this.mode === mushroom_mode.mushroom)
+					this.setVelocity(constants.mushroom_v, constants.gravity);
+			}
+		}
+	},
+	hit: function(opponent) {
+		if(this.active && opponent instanceof Mario) {
+			if(this.mode === mushroom_mode.mushroom)
+				opponent.grow();
+			else if(this.mode === mushroom_mode.plant)
+				opponent.shooter();
+				
+			this.die();
+		}
+	},
+});
+
+var Star = ItemFigure.extend({
+	init: function(x, y, level) {
+		this._super(x, y + 32, level);
+		this.active = false;
+		this.setSize(32, 32);
+		this.setImage(images.objects, 32, 69);
+		this.dead = true;
+	},
+	release: function() {
+		this.taken = 4;
+		this.active = true;
+		this.dead = false;
+		this.setVelocity(constants.star_vx, constants.star_vy);
+		this.setupFrames(6, 2, false);
+	},
+	collides: function(is, ie, js, je, blocking) {
+		return false;
+	},
+	move: function() {
+		if(this.active) {
+			this.vy += this.vy <= -constants.star_vy ? constants.gravity : constants.gravity / 2;
+			this._super();
+		}
+		
+		if(this.taken)
+			this.taken--;
+	},
+	hit: function(opponent) {
+		if(!this.taken && this.active && opponent instanceof Mario) {
+			opponent.invincible();
+			this.die();
+		}
+	},
+});
 
 // mario
 var Mario = Figure.extend({
@@ -168,6 +270,11 @@ var Mario = Figure.extend({
 		this.setImage(images.sprites, 81, 0);
 		this.crouching = false;
 		this.fast = false;
+		this.setCoins(0);
+		this.blinking = 0;
+		this.invulnerable = 0;
+		this.deadly = 0;
+		this.cooldown = 0;
 	},
 	setMarioState: function(state) {
 		this.marioState = state;
@@ -199,11 +306,39 @@ var Mario = Figure.extend({
 			if(this.onground && keys.up)
 				this.jump();
 			
+			if(keys.accelerate && this.marioState === mario_states.fire)
+				this.shoot();
+			
 			if(keys.right || keys.left)
 				this.walk(keys.left, keys.accelerate);
 			else
 				this.vx = 0;
 		}
+	},
+	blink: function(times) {
+		this.blinking = Math.max(2 * times * constants.blinkfactor, this.blinking || 0);
+	},
+	grow: function() {
+		if(this.state === size_states.small) {
+			this.setState(size_states.big);
+			this.blink(3);
+		}
+	},
+	shooter: function() {
+		if(this.state === size_states.small)
+			this.grow();			
+		this.setMarioState(mario_states.fire);
+	},
+	shoot: function() {
+		if(!this.cooldown) {
+			this.cooldown = constants.cooldown;
+			new Bullet(this);
+		}
+	},
+	invincible: function() {
+		this.deadly = Math.floor(constants.invincible / constants.interval);
+		this.invulnerable = this.deadly;
+		this.blink(Math.ceil(this.deadly / (2 * constants.blinkfactor)));
 	},
 	setVelocity: function(vx, vy) {
 		if(this.crouching) {
@@ -228,7 +363,7 @@ var Mario = Figure.extend({
 			if(!this.setupFrames(4, 2, true))
 				this.setImage(images.sprites, 0, 0);
 		} else {
-			if(!this.setupFrames(5, 2, true))
+			if(!this.setupFrames(3, 2, true))
 				this.setImage(images.sprites, 0, 243);
 		}
 	},
@@ -237,7 +372,7 @@ var Mario = Figure.extend({
 			if(!this.setupFrames(4, 2, true))
 				this.setImage(images.sprites, 0, 81);
 		} else {
-			if(!this.setupFrames(5, 2, true))
+			if(!this.setupFrames(3, 2, false))
 				this.setImage(images.sprites, 81, 162);
 		}
 	},
@@ -259,11 +394,30 @@ var Mario = Figure.extend({
 		this.setImage(images.sprites, this.state === size_states.small ? 241 : 161, 81);
 		//this.level.next(); TODO
 	},
+	setCoins: function(coins) {
+		this.coins = coins;			
+		this.level.coins = this.coins;
+	},
+	addCoin: function() {
+		this.setCoins(this.coins + 1);
+	},
 	move: function() {
 		this.input(keys);
 		this._super();
 	},
-	playFrame: function() {		
+	playFrame: function() {
+		if(this.blinking) {
+			this.blinking--;
+			if(this.blinking % constants.blinkfactor === 0)			
+				return;
+		}
+		if(this.deadly)
+			this.deadly--;		
+		if(this.invulnerable)
+			this.invulnerable--;
+		if(this.cooldown)
+			this.cooldown--;
+		
 		if(this.frameTick) {
 			this.frameTimer += delta;
 			if(this.frameTimer > this.frameTick){
@@ -279,3 +433,40 @@ var Mario = Figure.extend({
 			ctx1.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x-24, can.height - this.y - this.height, this.width, this.height);
 	},
 }, 'mario');
+
+var Bullet = Figure.extend({
+	init: function(parent) {
+		this._super(parent.x + 31, parent.y + 14, parent.level);
+		this.parent = parent;
+		this.setImage(images.sprites, 191, 366);
+		this.setSize(16, 16);
+		this.direction = parent.direction;
+		this.vy = 0;
+		this.life = Math.ceil(2000 / constants.interval);
+		this.speed = constants.bullet_v;
+		this.vx = this.direction === directions.right ? this.speed : -this.speed;
+	},
+	setVelocity: function(vx, vy) {
+		this._super(vx, vy);
+	
+		if(this.vx === 0) {
+			var s = this.speed * Math.sign(this.speed);
+			this.vx = this.direction === directions.right ? -s : s;
+		}
+		
+		if(this.onground)
+			this.vy = constants.bounce;
+	},
+	move: function() {
+		if(--this.life)
+			this._super();
+		else
+			this.die();
+	},
+	hit: function(opponent) {
+		if(!(opponent instanceof Mario)) {
+			opponent.die();
+			this.die();
+		}
+	},
+});

@@ -1,5 +1,6 @@
 var can2 = document.getElementById('info');
 var ctx2 = can2.getContext('2d');
+ctx2.font = "2rem SMB";
 var can1 = document.getElementById('figure');
 var ctx1 = can1.getContext('2d');
 var can = document.getElementById('scene');
@@ -92,7 +93,7 @@ var Gauge = Base.extend({
 var GameController = Base.extend({
 	init: function() {
 		this._super(0, 0);
-
+		this.coins = 0;
 		this.figures = [];
 		this.obstacles = [];
 		this.coinGauge = new Gauge(20, 450, 32, 32, 0, 0, 5, 4, true);
@@ -152,6 +153,20 @@ var GameController = Base.extend({
 			//draw	
 			for(let i = 0; i < this.figures.length; i++) {
 				if(!this.figures[i].dead) {
+					if(i) {
+					for(let j = i; j--;) {
+						if(this.figures[i].dead)
+							break;
+													
+						if(!this.figures[j].dead && q2q(this.figures[i], this.figures[j])) {
+							this.figures[i].hit(this.figures[j]);
+							this.figures[j].hit(this.figures[i]);
+						}
+					}
+				}
+				}
+				
+				if(!this.figures[i].dead) {
 					this.figures[i].move();
 					this.figures[i].playFrame();
 				}
@@ -160,9 +175,10 @@ var GameController = Base.extend({
 				for(let j = 0; j < this.obstacles[i].length; j++)
 					if(this.obstacles[i][j])
 						this.obstacles[i][j].playFrame();
-						
+			
 			this.coinGauge.playFrame();
 			this.liveGauge.playFrame();
+			ctx2.fillText(this.coins, 60, 60);
 	},
 	pause: function() {
 		window.cancelAnimationFrame(this.animationID);

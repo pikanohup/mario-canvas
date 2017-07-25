@@ -2,24 +2,24 @@ Base
 	GameController
 	Gauge
 	Matter
-		Ground
-			TopGrass, TopRightGrass, TopLeftGrass, RightGrass, LeftGrass, TopRightRoundedGrass, TopLeftRoundedGrass
-			Stone, BrownBlock
-			RightTopPipe, LeftTopPipe, RightPipe, LeftPipe
-		Decoration
-			TopRightCornerGrass, TopLeftCornerGrass
-			Soil, RightSoil, LeftSoil
-			RightBush, RightMiddleBush, MiddleBush, LeftMiddleBush, LeftBush
-			TopRightGrassSoil, TopLeftGrassSoil
-			RightPlantedSoil, MiddlePlantedSoil, LeftPlantedSoil
-			RightPipeGrass, LeftPipeGrass, RightPipeSoil, LeftPipeSoil
+		// Ground
+			// TopGrass, TopRightGrass, TopLeftGrass, RightGrass, LeftGrass, TopRightRoundedGrass, TopLeftRoundedGrass
+			// Stone, BrownBlock
+			// RightTopPipe, LeftTopPipe, RightPipe, LeftPipe
+		// Decoration
+			// TopRightCornerGrass, TopLeftCornerGrass
+			// Soil, RightSoil, LeftSoil
+			// RightBush, RightMiddleBush, MiddleBush, LeftMiddleBush, LeftBush
+			// TopRightGrassSoil, TopLeftGrassSoil
+			// RightPlantedSoil, MiddlePlantedSoil, LeftPlantedSoil
+			// RightPipeGrass, LeftPipeGrass, RightPipeSoil, LeftPipeSoil
 		Item
-			StarBox
-			MushroomBox
-			CoinBox
-				MultipleCoinBox
-			Coin
-				CoinBoxCoin
+			// StarBox
+			// MushroomBox
+			// CoinBox
+				// MultipleCoinBox
+			// Coin
+				// CoinBoxCoin
 	Figure
 		Mario
 		Bullet
@@ -28,6 +28,6 @@ Base
 			GreenTurtle, SpikedTurtle, TurtleShell
 			Plant
 				StaticPlant, PipePlant
-		ItemFigure
-			Star, Mushroom
+		// ItemFigure
+			// Star, Mushroom
 	SoundManager
