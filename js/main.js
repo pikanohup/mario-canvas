@@ -7,6 +7,17 @@ var ctx = can.getContext('2d');
 var delta = 0;
 var then = Date.now();
 
+Array.prototype.removeByValue = function(val) {
+  for(let i = 0; i < this.length; i++) {
+    if(this[i] == val) {
+      this.splice(i, 1);
+      break;
+    }
+  }
+}
+
+
+
 var Base = Class.extend({
 	init: function(x, y) {
 		this.setPosition(x || 0, y || 0);
@@ -95,6 +106,8 @@ var GameController = Base.extend({
 
 		this.figures = [];
 		this.obstacles = [];
+		this.decorations = [];
+		this.items = [];
 		this.coinGauge = new Gauge(20, 450, 32, 32, 0, 0, 5, 4, true);
 		this.liveGauge = new Gauge(550, 450, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
@@ -150,16 +163,18 @@ var GameController = Base.extend({
 			ctx2.clearRect(0, 0, can2.width, this.height);
 			
 			//draw	
-			for(let i = 0; i < this.figures.length;i++ ) {
+			for(let i = 0; i < this.figures.length; i++) {
 				if(!this.figures[i].dead) {
 					this.figures[i].move();
 					this.figures[i].playFrame();
 				}
 			}
-			for(let i = 0; i < this.obstacles.length;i++ )
+			for(let i = 0; i < this.obstacles.length; i++)
 				for(let j = 0; j < this.obstacles[i].length; j++)
 					if(this.obstacles[i][j])
 						this.obstacles[i][j].playFrame();
+			for(let i = 0; i < this.items.length; i++)
+				this.items[i].playFrame();
 			
 			this.coinGauge.playFrame();
 			this.liveGauge.playFrame();
@@ -170,6 +185,8 @@ var GameController = Base.extend({
 	reset: function() {
 		this.figures = [];
 		this.obstacles = [];
+		this.decorations = [];
+		this.items = [];
 	},
 	getGridWidth: function() {
 		return this.raw.width;

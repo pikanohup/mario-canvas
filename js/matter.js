@@ -1,3 +1,4 @@
+// matter class
 var Matter = Base.extend({
 	init: function(x, y, blocking, level) {
 		this.blocking = blocking;
@@ -10,7 +11,7 @@ var Matter = Base.extend({
 		level.obstacles[this.x / 32][this.level.getGridHeight() - 1 - this.y / 32] = this;
 	},
 });
-
+// ground class
 var Ground = Matter.extend({
 	init: function(x, y, blocking, level) {
 		this._super(x, y, blocking, level);
@@ -115,7 +116,7 @@ var LeftPipe = Ground.extend({
 var Decoration = Matter.extend({
 	init: function(x, y, level) {
 		this._super(x, y, ground_blocking.none, level);
-		level.obstacles.push(this);
+		level.decorations.push(this);
 	},
 	setImage: function(img, x, y) {
 		
@@ -251,3 +252,75 @@ var LeftPipeSoil = Decoration.extend({
 	},
 }, 'pipe_left_soil');
 
+// item class
+var Item = Matter.extend({
+	init: function(x, y, isBlocking, level) {
+		this.isBouncing = false;
+		this.bounceCount = 0;
+		this.bounceFrames = Math.floor(50 / constants.interval);
+		this.bounceStep = Math.ceil(10 / this.bounceFrames);
+		this.bounceDir = 1;
+		this.isBlocking = isBlocking;
+		this._super(x, y, isBlocking ? ground_blocking.all : ground_blocking.none, level);
+		this.activated = false;
+		this.addToLevel(level);
+	},
+	addToLevel: function(level) {
+		level.items.push(this);
+	},
+	activate: function(from) {
+		this.activated = true;
+	},
+	bounce: function() {
+		this.isBouncing = true;
+		
+		for(var i = this.level.figures.length; i--; ) {
+			var fig = this.level.figures[i];
+			
+			if(fig.y === this.y + 32 && fig.x >= this.x - 16 && fig.x <= this.x + 16) {
+				if(fig instanceof ItemFigure)
+					fig.setVelocity(fig.vx, constants.bounce);
+				else
+					fig.die();
+			}
+		}
+	},
+	playFrame: function() {
+		if(this.isBouncing) {
+			//this.view.css({ 'bottom' : (this.bounceDir > 0 ? '+' : '-') + '=' + this.bounceStep + 'px' });
+			if(this.bounceDir > 0)
+				this.y += this.bounceStep;
+			else
+				this.y -= this.bounceStep;
+			this.bounceCount += this.bounceDir;
+			
+			if(this.bounceCount === this.bounceFrames)
+				this.bounceDir = -1;
+			else if(this.bounceCount === 0) {
+				this.bounceDir = 1;
+				this.isBouncing = false;
+			}
+		}
+		
+		this._super();
+	},
+});
+
+var Coin = Item.extend({
+	init: function(x, y, level) {
+		this._super(x, y, false, level);
+		this.setImage(images.objects, 0, 0);
+		this.setupFrames(4, 4, true);
+	},
+	activate: function(from) {
+		if(!this.activated) {
+			//from.addCoin(); TODO
+			this.remove();
+		}
+		this._super(from);
+	},
+	remove: function() {
+		//this.view.remove();
+		removeByValue(this.level.items, this);
+	},
+}, 'coin');

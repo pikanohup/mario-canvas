@@ -188,8 +188,8 @@ var Mario = Figure.extend({
 			ctx.translate(-this.vx, 0);
 			ctx1.translate(-this.vx, 0);
 		}
-		// if(this.onground && this.x >= this.level.width - 128)
-			// this.victory();
+		if(this.onground && this.x >= this.level.width - 128)
+			this.victory();
 	},
 	input: function(keys) {
 		this.fast = keys.accelerate;
@@ -253,6 +253,11 @@ var Mario = Figure.extend({
 	},
 	jump: function() {
 		this.vy = constants.jumping_v;
+	},
+	victory: function() {
+		this.clearFrames();
+		this.setImage(images.sprites, this.state === size_states.small ? 241 : 161, 81);
+		//this.level.next(); TODO
 	},
 	move: function() {
 		this.input(keys);
