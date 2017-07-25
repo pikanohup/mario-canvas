@@ -181,9 +181,9 @@ var Mario = Figure.extend({
 	setPosition: function(x, y) {
 		this._super(x, y);
 		var r = this.level.width - 640;
-		var w = (this.x <= 210) ? 0 : ((this.x >= this.level.width - 230) ? r : r / (this.level.width - 440) * (this.x - 210));		
+		var w = (this.x <= 210) ? 0 : ((this.x >= this.level.width - 430) ? r / (this.level.width - 440) * (this.level.width - 430 - 210) : r / (this.level.width - 440) * (this.x - 210));		
 		this.level.setParallax(w);
-		if(w && w != r)
+		if(w && this.x < this.level.width - 430)
 		{
 			ctx.translate(-this.vx, 0);
 			ctx1.translate(-this.vx, 0);
