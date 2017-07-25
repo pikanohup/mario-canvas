@@ -404,7 +404,7 @@ var Mario = Figure.extend({
 	victory: function() {
 		this.clearFrames();
 		this.setImage(images.sprites, this.state === size_states.small ? 241 : 161, 81);
-		//this.level.next(); TODO
+		this.level.next();
 	},
 	setCoins: function(coins) {
 		this.coins = coins;			

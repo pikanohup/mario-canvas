@@ -101,6 +101,7 @@ var GameController = Base.extend({
 		this.liveGauge = new Gauge(550, 450, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
 		this.transDis = 0;
+		this.nextCycles = 0;
 	},
 	setImage: function(index) {
 		var img = BASEPATH + 'backgrounds/0' + index + '.png';
@@ -112,7 +113,7 @@ var GameController = Base.extend({
 	load: function(level) {
 		this.reset();
 		this.setSize(level.width * 32, level.height * 32);
-		this.setImage(level.id);
+		this.setImage(level.background);
 		this.raw = level;
 		
 		for(let i = 0; i < level.width; i++) {
@@ -144,7 +145,7 @@ var GameController = Base.extend({
 		if(this.animationID)
 			window.cancelAnimationFrame(this.animationID);
 		var settings = {};
-		for(var i = this.figures.length; i--; ) {
+		for(let i = this.figures.length; i--;) {
 			if(this.figures[i] instanceof Mario) {
 				settings.lifes = this.figures[i].lifes - 1;
 				settings.coins = this.figures[i].coins;
@@ -155,11 +156,11 @@ var GameController = Base.extend({
 		this.reset();
 		
 		if(settings.lifes < 0) {
-			this.load(levelMap);
+			this.load(definedLevels[0]);
 		} else {		
 			this.load(this.raw);
 			
-			for(var i = this.figures.length; i--; ) {
+			for(let i = this.figures.length; i--; ) {
 				if(this.figures[i] instanceof Mario) {
 					this.figures[i].setLifes(settings.lifes || 0);
 					this.figures[i].setCoins(settings.coins || 0);
@@ -169,11 +170,54 @@ var GameController = Base.extend({
 		}
 		this.start();
 	},
+	next: function() {
+		this.nextCycles = Math.floor(1000 / constants.interval);
+	},
+	nextLoad: function() {
+		if(this.nextCycles)
+			return;
+		this.pause();
+		if(this.animationID)
+			window.cancelAnimationFrame(this.animationID);
+		var settings = {};
+		
+		for(let i = this.figures.length; i--; ) {
+			if(this.figures[i] instanceof Mario) {
+				settings.lifes = this.figures[i].lifes;
+				settings.coins = this.figures[i].coins;
+				settings.state = this.figures[i].state;
+				settings.marioState = this.figures[i].marioState;
+				break;
+			}
+		}
+		
+		this.reset();
+		this.load(definedLevels[this.raw.background]);
+		
+		for(let i = this.figures.length; i--; ) {
+			if(this.figures[i] instanceof Mario) {
+				this.figures[i].setLifes(settings.lifes || 0);
+				this.figures[i].setCoins(settings.coins || 0);
+				this.figures[i].setState(settings.state || size_states.small);
+				this.figures[i].setMarioState(settings.marioState || mario_states.normal);
+				break;
+			}
+		}
+		
+		this.start();
+	},
 	loop: function() {
 		var that = this;
 		this.animationID = window.requestAnimationFrame(function() {that.loop.apply(that);});
 		if(!this.looping)
 			window.cancelAnimationFrame(that.animationID);
+		
+		if(this.nextCycles) {
+			this.nextCycles--;
+			this.nextLoad();			
+			return;
+		}
+		
 		var now = Date.now();
 		delta = now - then;
 		if(delta > constants.interval)
@@ -243,7 +287,7 @@ var GameController = Base.extend({
 
 $(document).ready(function() {
 	var gameController = new GameController;
-	gameController.load(levelMap);
+	gameController.load(definedLevels[0]);
 	gameController.start();
 	keys.bind();
 });
