@@ -266,6 +266,7 @@ var Mario = Figure.extend({
 		this._super(x, y, level);
 		this.setSize(80, 80);
 		this.setMarioState(mario_states.normal);
+		this.setLifes(constants.start_lives);
 		this.direction = directions.right;
 		this.setImage(images.sprites, 81, 0);
 		this.crouching = false;
@@ -275,6 +276,12 @@ var Mario = Figure.extend({
 		this.invulnerable = 0;
 		this.deadly = 0;
 		this.cooldown = 0;
+		this.deathBeginWait = Math.floor(700 / constants.interval);
+		this.deathEndWait = 0;
+		this.deathFrames = Math.floor(600 / constants.interval);
+		this.deathStepUp = Math.ceil(200 / this.deathFrames);
+		this.deathDir = 1;
+		this.deathCount = 0;
 	},
 	setMarioState: function(state) {
 		this.marioState = state;
@@ -285,6 +292,10 @@ var Mario = Figure.extend({
 			this._super(state);
 		}
 	},
+	setLifes : function(lifes) {
+		this.lifes = lifes;
+		this.level.lifes = this.lifes;
+	},
 	setPosition: function(x, y) {
 		this._super(x, y);
 		var r = this.level.width - 640;
@@ -294,6 +305,7 @@ var Mario = Figure.extend({
 		{
 			ctx.translate(-this.vx, 0);
 			ctx1.translate(-this.vx, 0);
+			this.level.transDis += this.vx;
 		}
 		if(this.onground && this.x >= this.level.width - 128)
 			this.victory();
@@ -405,6 +417,48 @@ var Mario = Figure.extend({
 		this.input(keys);
 		this._super();
 	},
+	hurt: function(from) {
+		if(this.deadly)
+			from.die();
+		else if(this.invulnerable)
+			return;
+		else if(this.state === size_states.small) {
+			this.die();
+		} else {
+			this.invulnerable = Math.floor(constants.invulnerable / constants.interval);
+			this.blink(Math.ceil(this.invulnerable / (2 * constants.blinkfactor)));
+			this.setState(size_states.small);		
+		}
+	},
+	death: function() {
+		if(this.deathBeginWait) {
+			this.deathBeginWait--;
+			return true;
+		}
+		
+		if(this.deathEndWait)
+			return --this.deathEndWait;
+		
+		if(this.deathDir > 0)
+			this.y += this.deathDir > 0 ? this.deathStepUp : this.deathStepDown;
+		else
+			this.y -= this.deathDir > 0 ? this.deathStepUp : this.deathStepDown;
+		this.deathCount += this.deathDir;
+		
+		if(this.deathCount === this.deathFrames)
+			this.deathDir = -1;
+		else if(this.deathCount === 0)
+			this.deathEndWait = Math.floor(1800 / constants.interval);
+			
+		return true;
+	},
+	die: function() {
+		this.setMarioState(mario_states.normal);
+		this.deathStepDown = Math.ceil(240 / this.deathFrames);
+		this.setupFrames(9, 2, false);
+		this.setImage(images.sprites, 81, 324);
+		this._super();
+	},
 	playFrame: function() {
 		if(this.blinking) {
 			this.blinking--;
@@ -470,3 +524,133 @@ var Bullet = Figure.extend({
 		}
 	},
 });
+
+var Enemy = Figure.extend({
+	init: function(x, y, level) {
+		this._super(x, y, level);
+		this.speed = 0;
+	},
+	hide: function() {
+		this.invisible = true;
+	},
+	show: function() {	
+		this.invisible = false;
+	},
+	move: function() {
+		if(!this.invisible) {
+			this._super();
+		
+			if(this.vx === 0) {
+				var s = this.speed * Math.sign(this.speed);
+				this.setVelocity(this.direction === directions.right ? -s : s, this.vy);
+			}
+		}
+	},
+	collides: function(is, ie, js, je, blocking) {
+		if(this.j + 1 < this.level.getGridHeight()) {
+			for(var i = is - 1; i <= ie; i++) {
+				if(i < 0 || i >= this.level.getGridWidth())
+					return true;
+					
+				var obj = this.level.obstacles[i][this.j + 1];
+				
+				if(!obj || (obj.blocking & ground_blocking.top) !== ground_blocking.top)
+					return true;
+			}
+		}
+		
+		return this._super(is, ie, js, je, blocking);
+	},
+	setSpeed: function(v) {
+		this.speed = v;
+		this.setVelocity(-v, 0);
+	},
+	hurt: function(from) {
+		this.die();
+	},
+	hit: function(opponent) {
+		if(this.invisible)
+			return;
+			
+		if(opponent instanceof Mario) {
+			if(opponent.vy < 0 && opponent.y - opponent.vy >= this.y + this.state * 32) {
+				opponent.setVelocity(opponent.vx, constants.bounce);
+				this.hurt(opponent);
+			} else {
+				opponent.hurt(this);
+			}
+		}
+	},
+	playFrame: function() {		
+		if(this.frameTick) {
+			this.frameTimer += delta;
+			if(this.frameTimer > this.frameTick){
+				this.currentFrame++;
+				if(this.currentFrame >= this.frames)
+					this.currentFrame = 0;
+				this.frameTimer %= this.frameTick;
+			}
+			ctx1.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x-24, can.height - this.y - this.height, this.width, this.height);
+
+		}
+		else
+			ctx1.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x-24, can.height - this.y - this.height, this.width, this.height);
+	},
+});
+
+
+var Gumpa = Enemy.extend({
+	init: function(x, y, level) {
+		this._super(x, y, level);
+		this.setSize(34, 32);
+		this.setSpeed(constants.ballmonster_v);
+		this.death_mode = death_modes.normal;
+		this.deathCount = 0;
+	},
+	setVelocity: function(vx, vy) {
+		this._super(vx, vy);
+		
+		if(this.direction === directions.left) {
+			if(!this.setupFrames(6, 2, false))
+				this.setImage(images.enemies, 34, 188);
+		} else {
+			if(!this.setupFrames(6, 2, true))
+				this.setImage(images.enemies, 0, 228);
+		}
+	},
+	death: function() {
+		return (this.deathCount > 0);
+	},
+	die: function() {
+		this.clearFrames();
+		
+		if(this.death_mode === death_modes.normal) {
+			this.setImage(images.enemies, 102, 228);
+			this.deathCount = Math.ceil(600 / constants.interval);
+		} else if(this.death_mode === death_modes.shell) {
+			this.setImage(images.enemies, 68, this.direction === directions.right ? 228 : 188);
+			this.deathFrames = Math.floor(250 / constants.interval);
+			this.deathDir = 1;
+			this.deathStep = Math.ceil(150 / this.deathFrames);
+		}
+		
+		this._super();
+	},
+	playFrame: function() {
+		if(this.deathCount)
+			this.deathCount--;
+		if(this.frameTick) {
+			this.frameTimer += delta;
+			if(this.frameTimer > this.frameTick){
+				this.currentFrame++;
+				if(this.currentFrame >= this.frames)
+					this.currentFrame = 0;
+				this.frameTimer %= this.frameTick;
+			}
+				ctx1.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
+
+		}
+		else
+			ctx1.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
+	},
+}, 'ballmonster');

@@ -57,8 +57,7 @@ var Base = Class.extend({
 					this.currentFrame = 0;
 				this.frameTimer %= this.frameTick;
 			}
-				ctx.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
-
+			ctx.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
 		}
 		else
 			ctx.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
@@ -94,11 +93,14 @@ var GameController = Base.extend({
 	init: function() {
 		this._super(0, 0);
 		this.coins = 0;
+		this.lifes = 0;
+		this.looping = false;
 		this.figures = [];
 		this.obstacles = [];
 		this.coinGauge = new Gauge(20, 450, 32, 32, 0, 0, 5, 4, true);
 		this.liveGauge = new Gauge(550, 450, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
+		this.transDis = 0;
 	},
 	setImage: function(index) {
 		var img = BASEPATH + 'backgrounds/0' + index + '.png';
@@ -107,14 +109,11 @@ var GameController = Base.extend({
 		this._super(img, 0, 0);
 	},
 	
-	load: function(level) {	
-		if(this.animationID){
-			this.pause(animationID);
-		}
+	load: function(level) {
 		this.reset();
 		this.setSize(level.width * 32, level.height * 32);
 		this.setImage(level.id);
-		this.raw = level;		
+		this.raw = level;
 		
 		for(let i = 0; i < level.width; i++) {
 			let t = [];
@@ -137,55 +136,98 @@ var GameController = Base.extend({
 
 	},
 	start: function() {
+		this.looping = true;
 		this.loop();
+	},
+	reload: function() {
+		this.pause();
+		if(this.animationID)
+			window.cancelAnimationFrame(this.animationID);
+		var settings = {};
+		for(var i = this.figures.length; i--; ) {
+			if(this.figures[i] instanceof Mario) {
+				settings.lifes = this.figures[i].lifes - 1;
+				settings.coins = this.figures[i].coins;
+				break;
+			}
+		}
+		
+		this.reset();
+		
+		if(settings.lifes < 0) {
+			this.load(levelMap);
+		} else {		
+			this.load(this.raw);
+			
+			for(var i = this.figures.length; i--; ) {
+				if(this.figures[i] instanceof Mario) {
+					this.figures[i].setLifes(settings.lifes || 0);
+					this.figures[i].setCoins(settings.coins || 0);
+					break;
+				}
+			}
+		}
+		this.start();
 	},
 	loop: function() {
 		var that = this;
-		this.animationID = window.requestAnimationFrame(function() {that.loop.apply(that);});	
+		this.animationID = window.requestAnimationFrame(function() {that.loop.apply(that);});
+		if(!this.looping)
+			window.cancelAnimationFrame(that.animationID);
 		var now = Date.now();
 		delta = now - then;
 		if(delta > constants.interval)
 			delta = constants.interval;
-			ctx.clearRect(0, 0, this.width, this.height);
-			ctx1.clearRect(0, 0, this.width, this.height);
-			ctx2.clearRect(0, 0, can2.width, this.height);
-			
-			//draw	
-			for(let i = 0; i < this.figures.length; i++) {
-				if(!this.figures[i].dead) {
-					if(i) {
+		
+		ctx.clearRect(0, 0, that.width, that.height);
+		ctx1.clearRect(0, 0, that.width, that.height);
+		ctx2.clearRect(0, 0, can2.width, that.height);	
+		//draw	
+		for(let i = 0; i < this.figures.length; i++) {
+			if(!this.figures[i].dead) {
+				if(i) {
 					for(let j = i; j--;) {
 						if(this.figures[i].dead)
 							break;
-													
+												
 						if(!this.figures[j].dead && q2q(this.figures[i], this.figures[j])) {
 							this.figures[i].hit(this.figures[j]);
 							this.figures[j].hit(this.figures[i]);
 						}
 					}
 				}
-				}
-				
-				if(!this.figures[i].dead) {
-					this.figures[i].move();
-					this.figures[i].playFrame();
-				}
 			}
-			for(let i = 0; i < this.obstacles.length; i++)
-				for(let j = 0; j < this.obstacles[i].length; j++)
-					if(this.obstacles[i][j])
-						this.obstacles[i][j].playFrame();
+			else {
+				if(this.figures[i].death())
+					this.figures[i].playFrame();
+				else if(this.figures[i] instanceof Mario)
+					return this.reload();
+			}
+				
+			if(!this.figures[i].dead) {
+				this.figures[i].move();
+				this.figures[i].playFrame();
+			}
+		}
+		for(let i = 0; i < this.obstacles.length; i++)
+			for(let j = 0; j < this.obstacles[i].length; j++)
+				if(this.obstacles[i][j])
+					this.obstacles[i][j].playFrame();
 			
-			this.coinGauge.playFrame();
-			this.liveGauge.playFrame();
-			ctx2.fillText(this.coins, 60, 60);
+		this.coinGauge.playFrame();
+		this.liveGauge.playFrame();
+		ctx2.fillText(this.coins, 60, 60);
+		ctx2.fillText(this.lifes, 600, 60);
 	},
 	pause: function() {
-		window.cancelAnimationFrame(this.animationID);
+		this.looping = false;
 	},
 	reset: function() {
 		this.figures = [];
 		this.obstacles = [];
+		ctx.translate(this.transDis, 0);
+		ctx1.translate(this.transDis, 0);
+		this.transDis = 0;
 	},
 	getGridWidth: function() {
 		return this.raw.width;
