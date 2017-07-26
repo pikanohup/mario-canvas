@@ -61,73 +61,90 @@ var SoundManager = {
 	killEnemy: null,
 	stageClear: null,
 	bullet: null,
-	powerDown: null,	
+	powerDown: null,
+	sounds: null,
 	
 	init: function() {
+		sounds = [];
 		groundTheme = new Audio('sounds/ground-theme.mp3');
+		groundTheme.loop = true;
 		coin = new Audio('sounds/coin.wav');
+		sounds.push(coin);
 		jump = new Audio('sounds/jump.wav');
+		sounds.push(jump);
 		powerUpAppear = new Audio('sounds/power-up-appear.wav');
+		sounds.push(powerUpAppear);
 		powerUp = new Audio('sounds/power-up.wav');
+		sounds.push(powerUp);
 		marioDie = new Audio('sounds/mario-die.wav');
+		sounds.push(marioDie);
 		killEnemy = new Audio('sounds/kill-enemy.wav');
+		sounds.push(killEnemy);
 		stageClear = new Audio('sounds/stage-clear.wav');
+		sounds.push(stageClear);
 		bullet = new Audio('sounds/bullet.wav');
+		sounds.push(bullet);
 		powerDown = new Audio('sounds/power-down.wav');
-	},
-	
+		sounds.push(powerDown);
+		
+		this.setSoundVolume(1.0);
+		this.setMusicVolume(0.5);
+	},	
 	play: function(label) {
+		for(let i = 0; i < sounds.length; i++) {
+			sounds[i].pause();
+			sounds[i].currentTime = 0;
+		}
 		switch(label) {
 			case 'groundTheme':
-				groundTheme.play();
-				groundTheme.loop = true;
+				groundTheme.play();				
 				break;
 			case 'coin':
-				coin.pause();
-				coin.currentTime = 0;
 				coin.play();
 				break;			
 			case 'jump':
-				jump.pause();
-				jump.currentTime = 0;
 				jump.play();
 				break;
 			case 'powerUpAppear':
-				powerUpAppear.pause();
-				powerUpAppear.currentTime = 0;
 				powerUpAppear.play();
 				break;			
 			case 'powerUp':
-				powerUp.pause();
-				powerUp.currentTime = 0;
 				powerUp.play();
 				break;
 			case 'marioDie':
-				marioDie.pause();
-				marioDie.currentTime = 0;
 				marioDie.play();
 				break;			
 			case 'killEnemy':
-				killEnemy.pause();
-				killEnemy.currentTime = 0;
 				killEnemy.play();
 				break;
 			case 'stageClear':
-				stageClear.pause();
-				stageClear.currentTime = 0;
 				stageClear.play();
 				break;
 			case 'bullet':
-				bullet.pause();
-				bullet.currentTime = 0;
 				bullet.play();
 				break;
 			case 'powerDown':
-				powerDown.pause();
-				powerDown.currentTime = 0;
 				powerDown.play();
 				break;
 				
 		}
+	},	
+	pause: function() {
+		groundTheme.pause();
+	},	
+	reset: function() {
+		groundTheme.currentTime = 0;
+	},	
+	setSoundVolume: function(val) {
+		for(let i = 0; i < sounds.length; i++) {
+			sounds[i].volume = val;
+		}
 	},
+	setMusicVolume: function(val) {
+		groundTheme.volume = val;
+	},
+};
+
+var Menu = {
+	//TODO
 };

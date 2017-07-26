@@ -294,6 +294,10 @@ var Mario = Figure.extend({
 			this._super(state);
 		}
 	},
+	addLife: function() {
+		this.level.playSound('powerUp');
+		this.setLifes(this.lifes + 1);
+	},
 	setLifes : function(lifes) {
 		this.lifes = lifes;
 		this.level.lifes = this.lifes;
@@ -409,13 +413,18 @@ var Mario = Figure.extend({
 		this.vy = constants.jumping_v;
 	},
 	victory: function() {
+		this.level.pauseMusic();
 		this.level.playSound('stageClear');
 		this.clearFrames();
 		this.setImage(images.sprites, this.state === size_states.small ? 241 : 161, 81);
 		this.level.next();
 	},
 	setCoins: function(coins) {
-		this.coins = coins;			
+		this.coins = coins;	
+		if(this.coins >= constants.max_coins) {
+			this.addLife();
+			this.coins -= constants.max_coins;
+		}
 		this.level.coins = this.coins;
 	},
 	addCoin: function() {
@@ -462,6 +471,7 @@ var Mario = Figure.extend({
 		return true;
 	},
 	die: function() {
+		this.level.pauseMusic();
 		this.level.playSound('marioDie');
 		this.setMarioState(mario_states.normal);
 		this.deathStepDown = Math.ceil(240 / this.deathFrames);

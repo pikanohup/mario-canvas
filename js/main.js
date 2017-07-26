@@ -99,7 +99,7 @@ var GameController = Base.extend({
 		this.figures = [];
 		this.obstacles = [];
 		this.coinGauge = new Gauge(20, 450, 32, 32, 0, 0, 5, 4, true);
-		this.liveGauge = new Gauge(550, 450, 40, 40, 0, 430, 3, 6, true);
+		this.liveGauge = new Gauge(110, 450, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
 		this.transDis = 0;
 		this.nextCycles = 0;
@@ -138,6 +138,8 @@ var GameController = Base.extend({
 					new (reflection[col[j]])(i * 32, (col.length - j - 1) * 32, this);
 			}
 		}
+		this.resetMusic();
+		this.playMusic();
 
 	},
 	start: function() {
@@ -265,7 +267,8 @@ var GameController = Base.extend({
 		this.coinGauge.playFrame();
 		this.liveGauge.playFrame();
 		ctx2.fillText(this.coins, 60, 60);
-		ctx2.fillText(this.lifes, 600, 60);
+		ctx2.fillText(this.lifes, 160, 60);
+		ctx2.fillText("LEVEL " + this.levelID, 220, 60);
 	},
 	pause: function() {
 		this.looping = false;
@@ -291,16 +294,31 @@ var GameController = Base.extend({
 		if(this.sounds)
 			this.sounds.play(label);
 	},
-	playMusic: function(label) {
+	playMusic: function() {
 		if(this.sounds)
-			this.sounds.play(label);
+			this.sounds.play('groundTheme');
+	},
+	pauseMusic: function() {
+		if(this.sounds)
+			this.sounds.pause();
+	},
+	resetMusic: function() {
+		if(this.sounds)
+			this.sounds.reset();
+	},
+	setSoundVolume: function(val) {
+		if(this.sounds)
+			this.sounds.setSoundVolume(val);
+	},
+	setMusicVolume: function(val) {
+		if(this.sounds)
+			this.sounds.setMusicVolume(val);
 	},
 });
 
 $(document).ready(function() {
 	var gameController = new GameController;
 	gameController.load(definedLevels[0]);
-	gameController.playMusic('groundTheme');
 	gameController.start();
 	keys.bind();
 });

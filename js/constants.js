@@ -58,7 +58,7 @@ var constants = {
 	star_vx         : 2,
 	star_vy         : 8,
 	bullet_v        : 12,
-	max_coins       : 100,
+	max_coins       : 300,
 	pipeplant_count : 150,
 	pipeplant_v     : 1,
 	invincible      : 11000,
