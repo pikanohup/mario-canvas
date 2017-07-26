@@ -5,19 +5,28 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<title>Mario Game</title>
 		<link rel="stylesheet" type="text/css" href="css/index.css">
+		<link rel="stylesheet" type="text/css" href="css/jquery.nstSlider.css">
 	</head>
 	
 	<body>
 		<div id="game">
-			<button id="pause">▷</button>
-			<button id="settings">S</button>
-			<button id="return">R</button>
+			<button id="enter">enter</button>
+			<button id="continue">continue</button>
+			<div class="nstSlider" data-range_min="0" data-range_max="100"  data-cur_min="50"  data-cur_max="100">                                                                 
+				<div class="leftGrip">music</div> 
+				<div class="rightGrip">sound</div> 
+			</div>
+			<button id="pause">II</button>
+			<button id="settings">♬</button>
+			<button id="exit">↺</button>
+			<canvas id="home" height="480px" width="640px"></canvas>
 			<canvas id="info" height="480px" width="640px"></canvas>
 			<canvas id="scene" height="480px" width="640px"></canvas>
 			<canvas id="figure" height="480px" width="640px"></canvas>
 		</div>
 		
 		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="js/jquery.nstSlider.min.js"></script>		
 		<script src="js/testlevels.js"></script>
 		<script src="js/constants.js"></script>
 		<script src="js/oop.js"></script>		
@@ -25,6 +34,5 @@
 		<script src="js/main.js"></script>		
 		<script src="js/figure.js"></script>
 		<script src="js/matter.js"></script>
-
 	</body>
 </html>

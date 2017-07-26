@@ -15,7 +15,7 @@
 	border:1px solid #ccc; 
 	overflow:hidden;
 }
-#scene, #info, #figure{ 
+#scene, #info, #figure, #home{ 
 	margin:0; 
 	padding:0;
 	height:100%;
@@ -23,6 +23,10 @@
 	position:absolute;
 	bottom:0;
 	left:0;
+}
+#home {
+	z-index:4;
+	background:url('../images/backgrounds/00.jpg');
 }
 #scene { 
 	z-index:0;
@@ -33,7 +37,7 @@
 #info {
 	z-index:2;
 }
-#pause, #settings, #return {
+#pause, #settings, #exit{
 	position:absolute;
 	top:30px;
 	width:32px;
@@ -41,12 +45,40 @@
 	background:transparent;
 	z-index:3;
 }
+#enter, #continue {
+	position:absolute;
+	top:300px;
+	right:200px;
+	width:64px;
+	height:32px;
+	z-index:5;
+}
+#continue {
+	position:absolute;
+	top:300px;
+	right:100px;
+	width:64px;
+	height:32px;
+	z-index:5;
+}
 #pause {
 	right:110px;
 }
 #settings {
 	right:70px;
 }
-#return {
+#exit {
 	right:30px;
+}
+.nstSlider {
+	position:static;
+	overflow:visible;
+	margin:0;
+	width:auto;
+	height:auto;
+	left:170px;
+	top:100px;
+	opacity:0.3;
+	display:none;
+	z-index:3;
 }

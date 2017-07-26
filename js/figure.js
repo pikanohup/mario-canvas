@@ -568,7 +568,7 @@ var Enemy = Figure.extend({
 	},
 	collides: function(is, ie, js, je, blocking) {
 		if(this.j + 1 < this.level.getGridHeight()) {
-			for(var i = is - 1; i <= ie; i++) {
+			for(let i = is; i <= ie; i++) {
 				if(i < 0 || i >= this.level.getGridWidth())
 					return true;
 					

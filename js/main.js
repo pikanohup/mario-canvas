@@ -99,7 +99,7 @@ var GameController = Base.extend({
 		this.figures = [];
 		this.obstacles = [];
 		this.coinGauge = new Gauge(20, 450, 32, 32, 0, 0, 5, 4, true);
-		this.liveGauge = new Gauge(110, 450, 40, 40, 0, 430, 3, 6, true);
+		this.liveGauge = new Gauge(120, 450, 40, 40, 0, 430, 3, 6, true);
 		this.liveGauge.setImage(images.sprites, 0, 430);
 		this.transDis = 0;
 		this.nextCycles = 0;
@@ -161,7 +161,7 @@ var GameController = Base.extend({
 		
 		if(settings.lifes < 0) {
 			this.load(definedLevels[0]);
-		} else {		
+		} else {
 			this.load(this.raw);
 			
 			for(let i = this.figures.length; i--; ) {
@@ -265,8 +265,8 @@ var GameController = Base.extend({
 		this.coinGauge.playFrame();
 		this.liveGauge.playFrame();
 		ctx2.fillText(this.coins, 60, 60);
-		ctx2.fillText(this.lifes, 160, 60);
-		ctx2.fillText("LEVEL " + this.levelID, 220, 60);
+		ctx2.fillText(this.lifes, 170, 60);
+		ctx2.fillText("LEVEL " + this.levelID, 218, 60);
 	},
 	pause: function() {
 		this.looping = false;
@@ -316,8 +316,6 @@ var GameController = Base.extend({
 
 $(document).ready(function() {
 	var gameController = new GameController;
-	gameController.load(definedLevels[0]);
-	gameController.start();
 	keys.bind();
-	menu.bind(gameController);
+	menu.bind(gameController);	
 });
