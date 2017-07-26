@@ -309,6 +309,7 @@ var Coin = Item.extend({
 	},
 	activate: function(from) {
 		if(!this.activated) {
+			this.level.playSound('coin');
 			from.addCoin();
 			this.remove();
 		}

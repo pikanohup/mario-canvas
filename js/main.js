@@ -103,6 +103,8 @@ var GameController = Base.extend({
 		this.liveGauge.setImage(images.sprites, 0, 430);
 		this.transDis = 0;
 		this.nextCycles = 0;
+		this.sounds = SoundManager;
+		this.sounds.init();
 	},
 	setImage: function(index) {
 		var img = BASEPATH + 'backgrounds/0' + index + '.png';
@@ -173,7 +175,7 @@ var GameController = Base.extend({
 		this.start();
 	},
 	next: function() {
-		this.nextCycles = Math.floor(1000 / constants.interval);
+		this.nextCycles = Math.floor(7000 / constants.interval);
 	},
 	nextLoad: function() {
 		if(this.nextCycles)
@@ -285,11 +287,20 @@ var GameController = Base.extend({
 		this.setPosition(x, this.y);
 		can.style.backgroundPosition = '-' + Math.floor(x / 3) + 'px -380px';		
 	},
+	playSound: function(label) {
+		if(this.sounds)
+			this.sounds.play(label);
+	},
+	playMusic: function(label) {
+		if(this.sounds)
+			this.sounds.play(label);
+	},
 });
 
 $(document).ready(function() {
 	var gameController = new GameController;
 	gameController.load(definedLevels[0]);
+	gameController.playMusic('groundTheme');
 	gameController.start();
 	keys.bind();
 });

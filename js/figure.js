@@ -181,6 +181,7 @@ var Mushroom = ItemFigure.extend({
 		this.dead = true;
 	},
 	release: function(mode) {
+		this.level.playSound('powerUpAppear');
 		this.released = 4;
 		if(mode === mushroom_mode.plant)
 			this.setImage(images.objects, 548, 60);			
@@ -226,6 +227,7 @@ var Star = ItemFigure.extend({
 		this.dead = true;
 	},
 	release: function() {
+		this.level.playSound('powerUpAppear');
 		this.taken = 4;
 		this.active = true;
 		this.dead = false;
@@ -331,12 +333,14 @@ var Mario = Figure.extend({
 		this.blinking = Math.max(2 * times * constants.blinkfactor, this.blinking || 0);
 	},
 	grow: function() {
-		if(this.state === size_states.small) {
+		this.level.playSound('powerUp');
+		if(this.state === size_states.small) {			
 			this.setState(size_states.big);
 			this.blink(3);
 		}
 	},
 	shooter: function() {
+		this.level.playSound('powerUp');
 		if(this.state === size_states.small)
 			this.grow();			
 		this.setMarioState(mario_states.fire);
@@ -345,9 +349,11 @@ var Mario = Figure.extend({
 		if(!this.cooldown) {
 			this.cooldown = constants.cooldown;
 			new Bullet(this);
+			this.level.playSound('bullet');
 		}
 	},
 	invincible: function() {
+		this.level.playSound('powerUp');
 		this.deadly = Math.floor(constants.invincible / constants.interval);
 		this.invulnerable = this.deadly;
 		this.blink(Math.ceil(this.deadly / (2 * constants.blinkfactor)));
@@ -399,9 +405,11 @@ var Mario = Figure.extend({
 		this.clearFrames();
 	},
 	jump: function() {
+		this.level.playSound('jump');
 		this.vy = constants.jumping_v;
 	},
 	victory: function() {
+		this.level.playSound('stageClear');
 		this.clearFrames();
 		this.setImage(images.sprites, this.state === size_states.small ? 241 : 161, 81);
 		this.level.next();
@@ -425,6 +433,7 @@ var Mario = Figure.extend({
 		else if(this.state === size_states.small) {
 			this.die();
 		} else {
+			this.level.playSound('powerDown');
 			this.invulnerable = Math.floor(constants.invulnerable / constants.interval);
 			this.blink(Math.ceil(this.invulnerable / (2 * constants.blinkfactor)));
 			this.setState(size_states.small);		
@@ -453,6 +462,7 @@ var Mario = Figure.extend({
 		return true;
 	},
 	die: function() {
+		this.level.playSound('marioDie');
 		this.setMarioState(mario_states.normal);
 		this.deathStepDown = Math.ceil(240 / this.deathFrames);
 		this.setupFrames(9, 2, false);
@@ -625,6 +635,7 @@ var Gumpa = Enemy.extend({
 		this.clearFrames();
 		
 		if(this.death_mode === death_modes.normal) {
+			this.level.playSound('killEnemy');
 			this.setImage(images.enemies, 102, 228);
 			this.deathCount = Math.ceil(600 / constants.interval);
 		} else if(this.death_mode === death_modes.shell) {
