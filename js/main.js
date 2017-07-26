@@ -175,7 +175,7 @@ var GameController = Base.extend({
 		this.start();
 	},
 	next: function() {
-		this.nextCycles = Math.floor(8000 / constants.interval);
+		this.nextCycles = Math.floor(10200 / constants.interval);
 	},
 	nextLoad: function() {
 		if(this.nextCycles)
