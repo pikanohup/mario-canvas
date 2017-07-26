@@ -64,10 +64,10 @@ var SoundManager = {
 	powerDown: null,
 	sounds: null,
 	
-	init: function() {
-		sounds = [];
+	init: function() {		
 		groundTheme = new Audio('sounds/ground-theme.mp3');
 		groundTheme.loop = true;
+		sounds = [];
 		coin = new Audio('sounds/coin.wav');
 		sounds.push(coin);
 		jump = new Audio('sounds/jump.wav');
@@ -145,6 +145,36 @@ var SoundManager = {
 	},
 };
 
-var Menu = {
-	//TODO
+var menu = {
+	bind: function(game) {
+		$('#pause').on('click', function(event) {	
+			menu.pauseHandler(event, game);
+		});
+		$('#settings').on('click', function(event) {	
+			menu.settingsHandler(event, game);
+		});
+	},
+	reset: function() {
+		menu.pause = false;
+		menu.setting = false;
+	},
+	unbind: function() {
+		$('#pause').off('click');
+	},
+	pauseHandler: function(event, game) {
+		if(!menu.pause) {
+			menu.pause = true;
+			game.pause();
+			game.pauseMusic();
+		}
+		else {
+			menu.pause = false;
+			game.start();
+		}
+	},
+	settingsHandler: function(event, game) {
+		game.sounds.groundTheme.controls = true;
+	},
+	pause: false,
+	setting: false,
 };

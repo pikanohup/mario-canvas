@@ -254,7 +254,7 @@ var Star = ItemFigure.extend({
 	},
 });
 
-// mario
+// mario class
 var Mario = Figure.extend({
 	init: function(x, y, level) {
 		this.standSprites = [

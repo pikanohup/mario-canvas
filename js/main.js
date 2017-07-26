@@ -111,8 +111,7 @@ var GameController = Base.extend({
 		can.style.background = c2u(img);
 		can.style.backgroundPosition = '0 -380px';
 		this._super(img, 0, 0);
-	},
-	
+	},	
 	load: function(level) {
 		this.reset();
 		this.setSize(level.width * 32, level.height * 32);
@@ -139,10 +138,9 @@ var GameController = Base.extend({
 			}
 		}
 		this.resetMusic();
-		this.playMusic();
-
 	},
 	start: function() {
+		this.playMusic();
 		this.looping = true;
 		this.loop();
 	},
@@ -177,7 +175,7 @@ var GameController = Base.extend({
 		this.start();
 	},
 	next: function() {
-		this.nextCycles = Math.floor(7000 / constants.interval);
+		this.nextCycles = Math.floor(8000 / constants.interval);
 	},
 	nextLoad: function() {
 		if(this.nextCycles)
@@ -321,4 +319,5 @@ $(document).ready(function() {
 	gameController.load(definedLevels[0]);
 	gameController.start();
 	keys.bind();
+	menu.bind(gameController);
 });

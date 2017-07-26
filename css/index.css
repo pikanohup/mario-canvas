@@ -1,17 +1,28 @@
 @font-face {
-   font-family: 'SMB';
-   src: local('Super Mario Bros.'),
+   font-family:'SMB';
+   src:local('Super Mario Bros.'),
         url('../fonts/Super Mario Bros.ttf') format('truetype');
-   font-style: normal;
+   font-style:normal;
 }
-
 #game {
-	height: 480px; width: 640px; position: absolute; left: 50%; top: 50%;
-	margin-left: -321px; margin-top: -241px; border: 1px solid #ccc; overflow: hidden;
+	height:480px;
+	width:640px;
+	position:absolute; 
+	left:50%; 
+	top:50%;
+	margin-left:-321px;
+	margin-top:-241px;
+	border:1px solid #ccc; 
+	overflow:hidden;
 }
-#scene, #info, #figure { 
-	margin: 0; padding: 0; height: 100%; width: 100%; position: absolute;
-	bottom: 0; left: 0;
+#scene, #info, #figure{ 
+	margin:0; 
+	padding:0;
+	height:100%;
+	width:100%; 
+	position:absolute;
+	bottom:0;
+	left:0;
 }
 #scene { 
 	z-index:0;
@@ -21,4 +32,21 @@
 }
 #info {
 	z-index:2;
+}
+#pause, #settings, #return {
+	position:absolute;
+	top:30px;
+	width:32px;
+	height:32px;
+	background:transparent;
+	z-index:3;
+}
+#pause {
+	right:110px;
+}
+#settings {
+	right:70px;
+}
+#return {
+	right:30px;
 }
