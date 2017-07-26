@@ -183,8 +183,13 @@ var GameController = Base.extend({
 		this.pause();
 		if(this.animationID)
 			window.cancelAnimationFrame(this.animationID);
-		var settings = {};
-		
+		if(this.levelID === constants.max_level) {
+			$('#home').css('display', 'block');
+			$('#enter').css('display', 'block');
+			$('#continue').css('display', 'block');
+			return;
+		}
+		var settings = {};		
 		for(let i = this.figures.length; i--; ) {
 			if(this.figures[i] instanceof Mario) {
 				settings.lifes = this.figures[i].lifes;

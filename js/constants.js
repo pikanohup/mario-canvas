@@ -36,7 +36,6 @@ var images = {
 	enemies : BASEPATH + 'mario-enemies.png',
 	sprites : BASEPATH + 'mario-sprites.png',
 	objects : BASEPATH + 'mario-objects.png',
-	peach   : BASEPATH + 'mario-peach.png',
 };
 var constants = {
 	interval        : 40,
@@ -64,6 +63,7 @@ var constants = {
 	invincible      : 11000,
 	invulnerable    : 1000,
 	blinkfactor     : 5,
+	max_level		: 15,
 };
 var mushroom_mode = {
 	mushroom : 0,
