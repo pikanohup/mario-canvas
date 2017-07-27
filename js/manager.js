@@ -38,7 +38,10 @@
 		$('#home').css('display', 'none');
 		$('#enter').css('display', 'none');
 		$('#continue').css('display', 'none');
-		game.load(definedLevels[game.levelID-1]);
+		if(localStorage.curLevel)
+			game.load(definedLevels[Number(localStorage.curLevel)-1]);
+		else
+			game.load(definedLevels[0]);
 		game.start();
 	},
 	pauseHandler: function(event, game) {

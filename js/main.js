@@ -117,6 +117,8 @@ var GameController = Base.extend({
 		this.setSize(level.width * 32, level.height * 32);
 		this.setImage(level.background);
 		this.levelID = level.id + 1;
+		localStorage.curLevel = level.id + 1;
+
 		this.raw = level;
 		
 		for(let i = 0; i < level.width; i++) {
