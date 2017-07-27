@@ -1,4 +1,89 @@
-﻿var keys = {
+﻿var menu = {
+	bind: function(game) {
+		$('#enter').on('click', function(event) {	
+			menu.enterHandler(event, game);
+		});
+		$('#continue').on('click', function(event) {	
+			menu.continueHandler(event, game);
+		});
+		$('#pause').on('click', function(event) {	
+			menu.pauseHandler(event, game);
+		});
+		$('#settings').on('click', function(event) {	
+			menu.settingsHandler(event, game);
+		});	
+		$('#exit').on('click', function(event) {	
+			menu.exitHandler(event, game);
+		});			
+ 	},
+	reset: function() {
+		menu.pause = false;
+		menu.setting = false;
+	},
+	unbind: function() {
+		$('#enter').off('click');
+		$('#continue').off('click');
+		$('#pause').off('click');
+		$('#settings').off('click');
+		$('#exit').off('click');
+	},
+	enterHandler: function(event, game) {
+		$('#home').css('display', 'none');
+		$('#enter').css('display', 'none');
+		$('#continue').css('display', 'none');
+		game.load(definedLevels[0]);
+		game.start();
+	},
+	continueHandler: function(event, game) {
+		$('#home').css('display', 'none');
+		$('#enter').css('display', 'none');
+		$('#continue').css('display', 'none');
+		game.load(definedLevels[game.levelID-1]);
+		game.start();
+	},
+	pauseHandler: function(event, game) {
+		if(!menu.pause) {
+			$('#pause').html('▷');
+			menu.pause = true;
+			game.pause();
+			game.pauseMusic();
+		}
+		else {
+			$('#pause').html('II');
+			menu.pause = false;
+			game.start();
+		}
+	},
+	settingsHandler: function(event, game) {
+		if(menu.setting) {
+			$('.nstSlider').css('display', 'none');
+			menu.setting = false;
+		}
+		else {
+			$('.nstSlider').css('display', 'block');
+			menu.setting = true;
+			$('.nstSlider').nstSlider({
+				"left_grip_selector": ".leftGrip",
+                "right_grip_selector": ".rightGrip",
+                "value_changed_callback": function(cause, leftValue, rightValue) {
+                    game.setMusicVolume(leftValue / 100);
+                    game.setSoundVolume(rightValue / 100);
+                },
+            });
+		}			
+	},
+	exitHandler: function(event, game) {
+		game.pause();
+		game.pauseMusic();
+		$('#home').css('display', 'block');
+		$('#enter').css('display', 'block');
+		$('#continue').css('display', 'block');
+	},
+	pause: false,
+	setting: false,
+};
+
+var keys = {
 	bind: function() {
 		$(document).on('keydown', function(event) {	
 			return keys.handler(event, true);
@@ -8,11 +93,12 @@
 		});
 	},
 	reset: function() {
+		keys.accelerate = false;
 		keys.left = false;
 		keys.right = false;
-		keys.accelerate = false;
 		keys.up = false;
 		keys.down = false;
+		keys.shoot = false;
 	},
 	unbind: function() {
 		$(document).off('keydown');
@@ -22,7 +108,6 @@
 		switch(event.keyCode) {
 			case 57392://CTRL on MAC
 			case 17://CTRL
-			case 65://A
 				keys.accelerate = status;
 				break;
 			case 40://DOWN ARROW
@@ -37,6 +122,9 @@
 			case 38://UP ARROW
 				keys.up = status;
 				break;
+			case 65://A
+				keys.shoot = status;
+				break;
 			default:
 				return true;
 		}
@@ -49,6 +137,7 @@
 	up: false,
 	right: false,
 	down: false,
+	shoot:false,
 };
 
 var SoundManager = {
@@ -143,89 +232,4 @@ var SoundManager = {
 	setMusicVolume: function(val) {
 		groundTheme.volume = val;
 	},
-};
-
-var menu = {
-	bind: function(game) {
-		$('#enter').on('click', function(event) {	
-			menu.enterHandler(event, game);
-		});
-		$('#continue').on('click', function(event) {	
-			menu.continueHandler(event, game);
-		});
-		$('#pause').on('click', function(event) {	
-			menu.pauseHandler(event, game);
-		});
-		$('#settings').on('click', function(event) {	
-			menu.settingsHandler(event, game);
-		});	
-		$('#exit').on('click', function(event) {	
-			menu.exitHandler(event, game);
-		});			
- 	},
-	reset: function() {
-		menu.pause = false;
-		menu.setting = false;
-	},
-	unbind: function() {
-		$('#enter').off('click');
-		$('#continue').off('click');
-		$('#pause').off('click');
-		$('#settings').off('click');
-		$('#exit').off('click');
-	},
-	enterHandler: function(event, game) {
-		$('#home').css('display', 'none');
-		$('#enter').css('display', 'none');
-		$('#continue').css('display', 'none');
-		game.load(definedLevels[0]);
-		game.start();
-	},
-	continueHandler: function(event, game) {
-		$('#home').css('display', 'none');
-		$('#enter').css('display', 'none');
-		$('#continue').css('display', 'none');
-		game.load(definedLevels[game.levelID-1]);
-		game.start();
-	},
-	pauseHandler: function(event, game) {
-		if(!menu.pause) {
-			$('#pause').html('▷');
-			menu.pause = true;
-			game.pause();
-			game.pauseMusic();
-		}
-		else {
-			$('#pause').html('II');
-			menu.pause = false;
-			game.start();
-		}
-	},
-	settingsHandler: function(event, game) {
-		if(menu.setting) {
-			$('.nstSlider').css('display', 'none');
-			menu.setting = false;
-		}
-		else {
-			$('.nstSlider').css('display', 'block');
-			menu.setting = true;
-			$('.nstSlider').nstSlider({
-				"left_grip_selector": ".leftGrip",
-                "right_grip_selector": ".rightGrip",
-                "value_changed_callback": function(cause, leftValue, rightValue) {
-                    game.setMusicVolume(leftValue / 100);
-                    game.setSoundVolume(rightValue / 100);
-                },
-            });
-		}			
-	},
-	exitHandler: function(event, game) {
-		game.pause();
-		game.pauseMusic();
-		$('#home').css('display', 'block');
-		$('#enter').css('display', 'block');
-		$('#continue').css('display', 'block');
-	},
-	pause: false,
-	setting: false,
 };

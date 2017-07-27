@@ -324,7 +324,7 @@ var Mario = Figure.extend({
 			if(this.onground && keys.up)
 				this.jump();
 			
-			if(keys.accelerate && this.marioState === mario_states.fire)
+			if(keys.shoot && this.marioState === mario_states.fire)
 				this.shoot();
 			
 			if(keys.right || keys.left)
@@ -899,6 +899,7 @@ var SpikedTurtle = Enemy.extend({
 		return (this.deathCount > 0);
 	},
 	die: function() {
+		this.level.playSound('killEnemy');
 		this.clearFrames();
 		this._super();
 		this.deathCount = Math.ceil(600 / constants.interval);
@@ -957,6 +958,7 @@ var Plant = Enemy.extend({
 		this._super(0, 0);
 	},
 	die: function() {
+		this.level.playSound('killEnemy');
 		this.clearFrames();
 		this._super();
 	},
@@ -969,7 +971,7 @@ var Plant = Enemy.extend({
 		}
 	},
 	playFrame: function() {		
-	if(this.frameTick) {
+		if(this.frameTick) {
 		this.frameTimer += delta;
 		if(this.frameTimer > this.frameTick){
 			this.currentFrame++;
@@ -996,17 +998,28 @@ var StaticPlant = Plant.extend({
 	},
 	die: function() {
 		this._super();
+		this.deathCount = Math.ceil(600 / constants.interval);
 		this.setImage(images.enemies, 68, 3);
 	},
-	death: function() {
-		this.deathCount += this.deathDir;
-		
-		if(this.deathCount === this.deathFrames)
-			this.deathDir = -1;
-		else if(this.deathCount === 0)
-			return false;
-			
-		return true;
+	death: function() {		
+		return this.deathCount > 0;
+	},
+	playFrame: function() {
+		if(this.deathCount)
+			this.deathCount--;
+		if(this.frameTick) {
+			this.frameTimer += delta;
+			if(this.frameTimer > this.frameTick){
+				this.currentFrame++;
+				if(this.currentFrame >= this.frames)
+					this.currentFrame = 0;
+				this.frameTimer %= this.frameTick;
+			}
+				ctx1.drawImage(this.image.img, this.image.x + this.width * ((this.rewindFrames ? this.frames-1 : 0) - this.currentFrame), this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
+
+		}
+		else
+			ctx1.drawImage(this.image.img, this.image.x, this.image.y, this.width, this.height, this.x, can.height - this.y - this.height, this.width, this.height);
 	},
 }, 'staticplant');
 

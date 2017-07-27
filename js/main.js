@@ -320,7 +320,7 @@ var GameController = Base.extend({
 });
 
 $(document).ready(function() {
-	var gameController = new GameController;
+	var gameController = new GameController;	
+	menu.bind(gameController);
 	keys.bind();
-	menu.bind(gameController);	
 });

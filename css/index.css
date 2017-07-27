@@ -47,19 +47,19 @@
 }
 #enter, #continue {
 	position:absolute;
-	top:300px;
-	right:200px;
-	width:64px;
-	height:32px;
+	border:none;
+	top:310px;
+	width:214px;
+	height:40px;
 	z-index:5;
 }
+#enter {
+	left:55px;
+	background:url('../images/start.png');
+}
 #continue {
-	position:absolute;
-	top:300px;
-	right:100px;
-	width:64px;
-	height:32px;
-	z-index:5;
+	right:55px;
+	background:url('../images/continue.png');
 }
 #pause {
 	right:110px;
@@ -78,7 +78,7 @@
 	height:auto;
 	left:170px;
 	top:100px;
-	opacity:0.3;
+	opacity:0.6;
 	display:none;
 	z-index:3;
 }
