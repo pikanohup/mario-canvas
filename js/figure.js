@@ -297,6 +297,7 @@ var Mario = Figure.extend({
 	addLife: function() {
 		this.level.playSound('powerUp');
 		this.setLifes(this.lifes + 1);
+		this.blink(3);
 	},
 	setLifes : function(lifes) {
 		this.lifes = lifes;
